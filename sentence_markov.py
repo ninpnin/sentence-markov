@@ -1,18 +1,39 @@
 import random
 
-'''
+
 doc_dict = {}
 doc_dict_keys = []
 
-def subset_from_word(w):
-	if len(doc_dict_keys) == 0:
-		doc_dict_keys = doc_dict.keys()
-
+def subset_from_word(w, fallback):
+	r = ""
 	if w in doc_dict.keys():
-		return " ".join(doc_dict[w])
+		r = " ".join(doc_dict[w])
+	if len(r) > 0:
+		return r
 	else:
-		return ""
-		'''
+		print("fallback")
+		return fallback
+
+def init_dict(s):
+	str_list = s.split()
+	doc_dict_keys = doc_dict.keys()
+	for ix, word in enumerate(str_list):
+		
+		start = max(0,-10+ix)
+		end = ix+2
+		substr = " ".join(str_list[start:end])
+		
+		if ix % 10000 == 0:
+			#print(substr, "W:", word)
+			print(ix)
+			
+		if word not in doc_dict_keys:
+			doc_dict[word] = [substr]
+			doc_dict_keys = doc_dict.keys()
+		else:
+			doc_dict[word].append(substr)
+
+	
 
 def find_largest_sub(source, s):
 	s_split = s.split()
@@ -70,7 +91,7 @@ def get_new_helper(source, s):
 	else:
 		return random.choice(source.split()), 0
 
-source_str = open("data/" + "output.txt", "r").read()
+source_str = open("data/" + "fin-wiki-1.txt", "r").read()
 
 source_str_l = source_str.lower().replace(".", "").replace(",", "").split()
 l_all, l_unique = len(source_str_l), len(set(source_str_l))
@@ -81,11 +102,14 @@ print(l_unique, l_all, l_all / l_unique, l_unique / l_all)
 source_str = source_str.lower().replace("\n\n", " NEWLINENEWLINE ").replace("\n", " ").replace(",", " COMMA ")
 
 def main():
+	print("INIT")
+	init_dict(source_str)
+	print("INIT DONE")
 	full = "tärkeää muistaa"
 	current = full.lower()
-	for i in range(100):
-		#subset_str = subset_from_word(current)
-		new_word, d = get_new(source_str, current)
+	for i in range(1000):
+		subset_str = subset_from_word(current.split()[-1], source_str)
+		new_word, d = get_new(subset_str, current)
 		if i % 2 == 0:
 			print("new word", new_word, d)
 		current += " " + new_word
